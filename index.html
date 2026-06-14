@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学習管理アプリ | STUDY TRACKER</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .subject-btn-selected {
+            background-color: #4f46e5 !important;
+            color: white !important;
+            border-color: #4f46e5 !important;
+        }
+        .target-btn-selected {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #10b981 !important;
+        }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 0.05; }
+            50% { opacity: 0.15; }
+        }
+        .animate-pulse-soft {
+            animation: pulse-soft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="date-setting-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4">
+            <h3 class="text-lg font-bold mb-2"><span id="date-setting-target-name"></span>の日程設定</h3>
+            <p class="text-sm text-gray-500 mb-4">試験日を選択してください。</p>
+            <input type="date" id="date-target-date-input" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-6 outline-none focus:ring-2 focus:ring-emerald-500">
+            <div class="flex gap-2">
+                <button id="close-date-modal" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold">キャンセル</button>
+                <button id="save-date-btn" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg font-bold hover:bg-emerald-700">保存する</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="daily-goal-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4">
+            <h3 class="text-lg font-bold mb-2">1日の目標時間の設定</h3>
+            <p class="text-sm text-gray-500 mb-4">今日の目標勉強時間を入力してください。</p>
+            <div class="relative">
+                <input type="number" id="daily-goal-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-6 outline-none focus:ring-2 focus:ring-indigo-500 text-xl font-bold tabular-nums pr-12" placeholder="3">
+                <span class="absolute right-4 top-3.5 text-gray-400 font-bold">時間</span>
+            </div>
+            <div class="flex gap-2">
+                <button id="close-goal-modal" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-bold">キャンセル</button>
+                <button id="save-goal-btn" class="flex-1 bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700">保存する</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="max-w-4xl mx-auto p-4 md:p-8">
+        <div id="loading-screen" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+            <div class="flex flex-col items-center">
+                <svg class="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-4 text-gray-600">読み込み中...</p>
+            </div>
+        </div>
+
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-black text-indigo-600 tracking-tight">STUDY TRACKER</h1>
+            <div class="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md">
+                <span id="points-display">0</span> P
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow-sm border-b-4 border-indigo-500">
+                <h2 class="text-lg font-bold text-gray-500">マイダッシュボード</h2>
+                <div id="countdown-display" class="mt-1 text-sm font-bold text-emerald-600 italic">
+           
